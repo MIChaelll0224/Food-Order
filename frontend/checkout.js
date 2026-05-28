@@ -208,8 +208,46 @@ async function confirmOrder() {
             console.warn('Failed to parse backend response as JSON:', jsonError);
         }
 
-        if (!response.ok || !data || !data.success) {
+        if (!response.ok) {
             const errorMessage = data && data.message ? data.message : `Server error (${response.status})`;
+
+            if (response.status === 409) {
+                console.warn('Duplicate order blocked, marking order as confirmed locally:', data);
+                saveOrderHistory(currentOrder);
+                try {
+                    localStorage.removeItem(STORAGE_CURRENT_ORDER);
+                } catch (e) {
+                    console.warn('Could not clear current order from storage:', e);
+                }
+                await showModal({
+                    title: 'Order Already Confirmed',
+                    message: `Order #${currentOrder.orderNumber} was already submitted. It has been recorded and saved locally.`,
+                    type: 'success',
+                    confirmText: 'OK'
+                });
+                receiptStatus.textContent = 'COMPLETED';
+                if (confirmOrderButton) {
+                    confirmOrderButton.disabled = true;
+                    confirmOrderButton.textContent = 'Order Confirmed ✓';
+                }
+                return;
+            }
+
+            if (response.status === 429) {
+                await showModal({
+                    title: 'Order Processing',
+                    message: 'Your order is already being processed. Please wait a moment and try again if needed.',
+                    type: 'info',
+                    confirmText: 'OK'
+                });
+                return;
+            }
+
+            throw new Error(errorMessage);
+        }
+
+        if (!data || !data.success) {
+            const errorMessage = data && data.message ? data.message : 'Unexpected backend response';
             throw new Error(errorMessage);
         }
 
