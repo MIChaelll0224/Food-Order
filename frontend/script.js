@@ -632,7 +632,7 @@ function removeOrderFromHistory(orderNumber, cardElement) {
     }
 
     // Sync delete to backend
-    fetch(`http://127.0.0.1:3000/orders/${orderNumber}`, {
+    fetch(`https://food-order-j6xw.onrender.com/orders/${orderNumber}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
