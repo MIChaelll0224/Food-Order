@@ -1,0 +1,10 @@
+# dependencies
+backend/node_modules/
+frontend/node_modules/
+node_modules/
+
+# environment variables
+.env
+
+# secrets / keys
+backend/food-order-key.json

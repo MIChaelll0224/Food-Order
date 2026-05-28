@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Food Ordering System</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo Section -->
+            <div class="auth-header">
+                <div class="auth-logo-wrapper">
+                    <img src="assets/pba-logo.png" alt="PBA logo" class="auth-logo" onerror="this.style.display='none'" />
+                </div>
+                <h1>Create Account</h1>
+                <p class="auth-subtitle">Join Printing Business Academy - Food Ordering</p>
+            </div>
+
+            <!-- Form Section -->
+            <form class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <input 
+                        type="text" 
+                        id="registerUsername" 
+                        placeholder="Choose a username" 
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input 
+                        type="password" 
+                        id="registerPassword" 
+                        placeholder="Create a password" 
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="registerConfirmPassword" 
+                        placeholder="Confirm your password" 
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="button primary auth-button">Register</button>
+            </form>
+
+            <!-- Message Display -->
+            <p id="registerMessage" class="auth-message"></p>
+            <p class="auth-note">Note: new registrations are regular customer accounts only. The admin dashboard is available through the existing admin account.</p>
+
+            <!-- Footer Link -->
+            <div class="auth-footer">
+                <p>Already have an account? <a href="login.html">Login here</a></p>
+                <p><a href="index.html" class="back-link">← Back to Home</a></p>
+            </div>
+        </div>
+
+        <!-- Decorative elements -->
+        <div class="auth-decoration decoration-1"></div>
+        <div class="auth-decoration decoration-2"></div>
+        <div class="auth-decoration decoration-3"></div>
+    </div>
+
+    <script src="register.js"></script>
+</body>
+</html>

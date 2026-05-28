@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Food Ordering System</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="modal.css" />
+</head>
+<body>
+    <main class="app-shell">
+        <div class="brand-bar">
+            <img src="assets/pba-logo.png" alt="PBA logo" class="brand-logo" onerror="this.style.display='none'" />
+            <div class="brand-info">
+                <h2 class="brand-title">Printing Business Academy</h2>
+                <p class="brand-sub">Admin Dashboard</p>
+            </div>
+            <div class="nav-links" style="margin-left:auto; gap:12px; display:flex; align-items:center;">
+                <span id="admin-user" class="badge">Admin</span>
+                <button id="refresh-button" type="button" class="button secondary">Refresh</button>
+                <button id="logout-button" type="button" class="button danger">Logout</button>
+            </div>
+        </div>
+
+        <section class="hero">
+            <p class="eyebrow">Admin Panel</p>
+            <h1>Order Summary</h1>
+            <p class="lead">View total orders, daily sales, and the detailed order list synced from the website.</p>
+        </section>
+
+        <section class="panel admin-summary-panel">
+            <div class="panel-grid two-column">
+                <div class="panel-block">
+                    <h2>Total Orders</h2>
+                    <p id="total-orders" class="large-value">0</p>
+                </div>
+                <div class="panel-block">
+                    <h2>Total Sales</h2>
+                    <p id="total-sales" class="large-value">₱0.00</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel admin-orders-panel">
+            <div class="section-header">
+                <h2>Order Details</h2>
+                <p class="summary-note">Orders are read from the backend and synced to Google Sheets.</p>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; margin-bottom:12px;">
+                <button id="remove-all-button" type="button" class="button danger">Remove All</button>
+                <div style="margin-left:auto;">
+                    <strong>Daily Sales:</strong>
+                    <span id="daily-sales-text">₱0.00</span>
+                </div>
+            </div>
+            <div id="orders-list" class="summary-box admin-orders-list">
+                <p>Loading orders...</p>
+            </div>
+        </section>
+
+        <!-- Receipt modal -->
+        <div id="receipt-modal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+            <div class="modal-content" style="background:#fff; padding:20px; border-radius:8px; max-width:720px; width:100%;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <h3>Receipt</h3>
+                    <button id="receipt-close" class="button secondary">Close</button>
+                </div>
+                <div id="receipt-body" style="margin-top:12px; max-height:60vh; overflow:auto;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="modal.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

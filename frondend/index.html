@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Ordering System</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="modal.css" />
+</head>
+<body>
+    <main class="app-shell">
+        <div class="brand-bar">
+            <img src="assets/pba-logo.png" alt="PBA logo" class="brand-logo" onerror="this.style.display='none'" />
+            <div class="brand-info">
+                <h2 class="brand-title">Printing Business Academy</h2>
+                <p class="brand-sub">Food Ordering</p>
+            </div>
+        </div>
+        <section class="hero">
+            <p class="eyebrow">Online Food Ordering</p>
+            <h1>Order Your Meal</h1>
+            <p class="lead">Choose food items, update quantities, and checkout with a printable receipt.</p>
+        </section>
+
+        <section class="panel order-panel">
+            <div class="panel-grid">
+                <div class="panel-block">
+                    <h2>Customer</h2>
+                    <label for="customer-name">Name</label>
+                    <input id="customer-name" type="text" placeholder="Enter customer name" />
+                </div>
+
+                <div class="panel-block summary-panel">
+                    <div class="section-header">
+                        <div>
+                            <h2>Order Summary</h2>
+                            <p class="summary-note">Complete summary of all selected orders before checkout.</p>
+                        </div>
+                    <div id="order-summary" class="summary-box">
+                        <p>Your order is empty. Add items from the menu.</p>
+                    </div>
+                    <div class="summary-footer">
+                        <button id="clear-order-button" type="button" class="button secondary">Clear Order</button>
+                        <button id="checkout-button" type="button" class="button primary">Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel menu-panel">
+            <div class="section-header">
+                <div>
+                    <h2>Menu</h2>
+                    <p>Select a food item and enter quantity.</p>
+                </div>
+            </div>
+            <div id="menu-list" class="menu-grid"></div>
+        </section>
+
+        <!-- User page: no admin sections here. Admin UI lives in admin.html -->
+
+    </main>
+
+    <script src="modal.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
