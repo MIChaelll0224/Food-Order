@@ -1,6 +1,38 @@
-const API_BASE_URL = (window.location.protocol === 'file:' || window.location.hostname === '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://127.0.0.1:3000'
-    : 'https://food-order-j6xw.onrender.com';
+const LOCAL_API_BASE_URL = 'http://127.0.0.1:3000';
+const REMOTE_API_BASE_URL = 'https://food-order-j6xw.onrender.com';
+
+function isLocalHost(hostname) {
+    if (!hostname) return true;
+    const localHosts = ['localhost', '127.0.0.1', '::1'];
+    if (localHosts.includes(hostname)) return true;
+    if (/^(10|127)\./.test(hostname)) return true;
+    if (/^192\.168\./.test(hostname)) return true;
+    if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)) return true;
+    if (/^[^.]+$/.test(hostname)) return true;
+    return false;
+}
+
+const API_BASE_URL = window.location.protocol === 'file:' || isLocalHost(window.location.hostname)
+    ? LOCAL_API_BASE_URL
+    : REMOTE_API_BASE_URL;
+
+async function fetchWithFallback(resource, options = {}) {
+    try {
+        return await fetch(resource, options);
+    } catch (error) {
+        if (resource.startsWith(LOCAL_API_BASE_URL)) {
+            const fallbackUrl = REMOTE_API_BASE_URL + resource.slice(LOCAL_API_BASE_URL.length);
+            return await fetch(fallbackUrl, options);
+        }
+
+        if (resource.startsWith(REMOTE_API_BASE_URL) && (window.location.protocol === 'file:' || isLocalHost(window.location.hostname))) {
+            const fallbackUrl = LOCAL_API_BASE_URL + resource.slice(REMOTE_API_BASE_URL.length);
+            return await fetch(fallbackUrl, options);
+        }
+
+        throw error;
+    }
+}
 const totalOrdersEl = document.getElementById('total-orders');
 const totalSalesEl = document.getElementById('total-sales');
 const ordersListEl = document.getElementById('orders-list');
@@ -40,7 +72,7 @@ async function fetchOrders() {
     ordersListEl.innerHTML = '<p>Loading orders...</p>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/orders`);
+        const response = await fetchWithFallback(`${API_BASE_URL}/orders`);
         const data = await response.json();
 
         if (!data.success) {
@@ -150,7 +182,7 @@ async function removeAllOrders() {
     if (!confirmed) return;
 
     try {
-        const res = await fetch(`${API_BASE_URL}/orders`, { method: 'DELETE' });
+        const res = await fetchWithFallback(`${API_BASE_URL}/orders`, { method: 'DELETE' });
         const json = await res.json();
         if (json.success) {
             localStorage.removeItem('foodOrderHistory');

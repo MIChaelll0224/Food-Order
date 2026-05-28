@@ -1,7 +1,39 @@
-const API_BASE_URL = (window.location.protocol === 'file:' || window.location.hostname === '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://127.0.0.1:3000'
-    : 'https://food-order-j6xw.onrender.com';
-const CONNECTION_ERROR_TEXT = `Connection error. Please make sure the backend is available at ${API_BASE_URL}.`; 
+const LOCAL_API_BASE_URL = 'http://127.0.0.1:3000';
+const REMOTE_API_BASE_URL = 'https://food-order-j6xw.onrender.com';
+
+function isLocalHost(hostname) {
+    if (!hostname) return true;
+    const localHosts = ['localhost', '127.0.0.1', '::1'];
+    if (localHosts.includes(hostname)) return true;
+    if (/^(10|127)\./.test(hostname)) return true;
+    if (/^192\.168\./.test(hostname)) return true;
+    if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)) return true;
+    if (/^[^.]+$/.test(hostname)) return true;
+    return false;
+}
+
+const API_BASE_URL = window.location.protocol === 'file:' || isLocalHost(window.location.hostname)
+    ? LOCAL_API_BASE_URL
+    : REMOTE_API_BASE_URL;
+const CONNECTION_ERROR_TEXT = `Connection error. Please make sure the backend is available at ${API_BASE_URL}.`;
+
+async function fetchWithFallback(resource, options = {}) {
+    try {
+        return await fetch(resource, options);
+    } catch (error) {
+        if (resource.startsWith(LOCAL_API_BASE_URL)) {
+            const fallbackUrl = REMOTE_API_BASE_URL + resource.slice(LOCAL_API_BASE_URL.length);
+            return await fetch(fallbackUrl, options);
+        }
+
+        if (resource.startsWith(REMOTE_API_BASE_URL) && (window.location.protocol === 'file:' || isLocalHost(window.location.hostname))) {
+            const fallbackUrl = LOCAL_API_BASE_URL + resource.slice(REMOTE_API_BASE_URL.length);
+            return await fetch(fallbackUrl, options);
+        }
+
+        throw error;
+    }
+}
 
 function handleRegister(event) {
     event.preventDefault();
@@ -30,7 +62,7 @@ function handleRegister(event) {
         return;
     }
 
-    fetch(`${API_BASE_URL}/register`, {
+    fetchWithFallback(`${API_BASE_URL}/register`, {
         method: "POST",
         mode: "cors",
         headers: {

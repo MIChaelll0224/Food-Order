@@ -1,9 +1,42 @@
 ﻿// checkout.js
 // Checkout page logic: load order data and display receipt.
 
-const API_BASE_URL = (window.location.protocol === 'file:' || window.location.hostname === '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://127.0.0.1:3000'
-    : 'https://food-order-j6xw.onrender.com';
+const LOCAL_API_BASE_URL = 'http://127.0.0.1:3000';
+const REMOTE_API_BASE_URL = 'https://food-order-j6xw.onrender.com';
+
+function isLocalHost(hostname) {
+    if (!hostname) return true;
+    const localHosts = ['localhost', '127.0.0.1', '::1'];
+    if (localHosts.includes(hostname)) return true;
+    if (/^(10|127)\./.test(hostname)) return true;
+    if (/^192\.168\./.test(hostname)) return true;
+    if (/^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname)) return true;
+    if (/^[^.]+$/.test(hostname)) return true;
+    return false;
+}
+
+const API_BASE_URL = window.location.protocol === 'file:' || isLocalHost(window.location.hostname)
+    ? LOCAL_API_BASE_URL
+    : REMOTE_API_BASE_URL;
+
+async function fetchWithFallback(resource, options = {}) {
+    try {
+        return await fetch(resource, options);
+    } catch (error) {
+        if (resource.startsWith(LOCAL_API_BASE_URL)) {
+            const fallbackUrl = REMOTE_API_BASE_URL + resource.slice(LOCAL_API_BASE_URL.length);
+            return await fetch(fallbackUrl, options);
+        }
+
+        if (resource.startsWith(REMOTE_API_BASE_URL) && (window.location.protocol === 'file:' || isLocalHost(window.location.hostname))) {
+            const fallbackUrl = LOCAL_API_BASE_URL + resource.slice(REMOTE_API_BASE_URL.length);
+            return await fetch(fallbackUrl, options);
+        }
+
+        throw error;
+    }
+}
+
 const STORAGE_CURRENT_ORDER = 'currentFoodOrder';
 const STORAGE_HISTORY = 'foodOrderHistory';
 const STORAGE_LAST_ORDER_NUMBER = 'lastOrderNumber';
@@ -149,7 +182,7 @@ async function confirmOrder() {
     try {
         console.log('Sending order confirmation to Google Sheets...', currentOrder);
         
-        const response = await fetch(`${API_BASE_URL}/order`, {
+        const response = await fetchWithFallback(`${API_BASE_URL}/order`, {
             method: 'POST',
             mode: 'cors',
             cache: 'no-cache',
