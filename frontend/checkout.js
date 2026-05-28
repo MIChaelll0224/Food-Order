@@ -1,7 +1,9 @@
 ﻿// checkout.js
 // Checkout page logic: load order data and display receipt.
 
-const API_BASE_URL = "https://food-order-j6xw.onrender.com";
+const API_BASE_URL = (window.location.protocol === 'file:' || window.location.hostname === '' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://127.0.0.1:3000'
+    : 'https://food-order-j6xw.onrender.com';
 const STORAGE_CURRENT_ORDER = 'currentFoodOrder';
 const STORAGE_HISTORY = 'foodOrderHistory';
 const STORAGE_LAST_ORDER_NUMBER = 'lastOrderNumber';
