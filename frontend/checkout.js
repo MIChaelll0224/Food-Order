@@ -230,6 +230,12 @@ async function confirmOrder() {
                     confirmOrderButton.disabled = true;
                     confirmOrderButton.textContent = 'Order Confirmed ✓';
                 }
+                    try {
+                        localStorage.setItem('recent_order', JSON.stringify(currentOrder));
+                    } catch (e) {}
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        try { const bc = new BroadcastChannel('food-order-channel'); bc.postMessage({ type: 'new-order', orderNumber: currentOrder.orderNumber }); bc.close(); } catch (err) {}
+                    }
                 return;
             }
 
@@ -268,6 +274,12 @@ async function confirmOrder() {
         if (confirmOrderButton) {
             confirmOrderButton.disabled = true;
             confirmOrderButton.textContent = 'Order Confirmed ✓';
+        }
+        try {
+            localStorage.setItem('recent_order', JSON.stringify(currentOrder));
+        } catch (e) {}
+        if (typeof BroadcastChannel !== 'undefined') {
+            try { const bc = new BroadcastChannel('food-order-channel'); bc.postMessage({ type: 'new-order', orderNumber: currentOrder.orderNumber }); bc.close(); } catch (err) {}
         }
     } catch (error) {
         console.error('Failed to update order in Google Sheets:', error);

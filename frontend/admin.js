@@ -44,6 +44,21 @@ const receiptModal = document.getElementById('receipt-modal');
 const receiptClose = document.getElementById('receipt-close');
 const receiptBody = document.getElementById('receipt-body');
 
+// Listen for new-order broadcasts from other pages (checkout)
+if (typeof BroadcastChannel !== 'undefined') {
+    try {
+        const bc = new BroadcastChannel('food-order-channel');
+        bc.addEventListener('message', (ev) => {
+            if (ev && ev.data && ev.data.type === 'new-order') {
+                // Refresh orders when a new order is submitted elsewhere
+                fetchOrders();
+            }
+        });
+    } catch (err) {
+        console.warn('BroadcastChannel not available:', err && err.message);
+    }
+}
+
 function getCurrentUser() {
     const stored = localStorage.getItem('user');
     if (!stored) return null;

@@ -271,17 +271,77 @@ app.post("/order", async (req, res) => {
 // =========================
 
 app.get("/orders", (req, res) => {
-    const totalSales = orders.reduce(
-        (sum, order) => sum + (order.totalAmount || 0),
-        0
-    );
+    // Try to read authoritative order data from Google Sheets and return aggregated orders.
+    (async () => {
+        try {
+            const sheetRes = await sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: 'Sheet1!A2:K'
+            });
 
-    res.json({
-        success: true,
-        totalOrders: orders.length,
-        totalSales,
-        orders
-    });
+            const rows = sheetRes.data.values || [];
+
+            // Columns: OrderNumber, CustomerName, DateTime, ItemName, ItemQuantity, ItemPrice, TotalQuantity, TotalAmount, Status, CashReceived, Change
+            const map = new Map();
+
+            rows.forEach(r => {
+                const orderNumber = r[0];
+                if (!orderNumber) return;
+                const customerName = r[1] || '';
+                const dateTime = r[2] || '';
+                const itemName = r[3] || '';
+                const itemQuantity = Number(r[4] || 0);
+                const itemPrice = Number(r[5] || 0);
+                const totalQuantity = Number(r[6] || 0);
+                const totalAmount = Number(r[7] || 0);
+                const status = r[8] || 'PAID';
+
+                if (!map.has(orderNumber)) {
+                    map.set(orderNumber, {
+                        orderNumber,
+                        customerName,
+                        dateTime,
+                        items: [],
+                        totalQuantity: totalQuantity || 0,
+                        totalAmount: totalAmount || 0,
+                        paymentStatus: status
+                    });
+                }
+
+                const entry = map.get(orderNumber);
+                // If totals are missing on first row, accumulate
+                if (!entry.totalQuantity) entry.totalQuantity += itemQuantity;
+                if (!entry.totalAmount) entry.totalAmount += itemPrice * itemQuantity;
+
+                entry.items.push({
+                    name: itemName,
+                    quantity: itemQuantity,
+                    price: itemPrice,
+                    lineTotal: (itemPrice * itemQuantity) || 0
+                });
+            });
+
+            const ordersFromSheet = Array.from(map.values());
+            const totalSales = ordersFromSheet.reduce((s, o) => s + (o.totalAmount || 0), 0);
+
+            return res.json({
+                success: true,
+                totalOrders: ordersFromSheet.length,
+                totalSales,
+                orders: ordersFromSheet
+            });
+        } catch (err) {
+            // Fallback to in-memory orders if sheet read fails
+            console.log('Could not read from sheet, falling back to memory orders:', err && err.message);
+            const totalSales = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            return res.json({
+                success: true,
+                totalOrders: orders.length,
+                totalSales,
+                orders
+            });
+        }
+    })();
 });
 
 // =========================
