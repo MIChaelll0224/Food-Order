@@ -54,7 +54,7 @@ const MENU = [
     },
 ];
 
-const API_BASE_URL = "http://127.0.0.1:3000";
+const API_BASE_URL = "https://food-order-j6xw.onrender.com";
 const STORAGE_HISTORY = 'foodOrderHistory';
 const STORAGE_CURRENT_ORDER = 'currentFoodOrder';
 const STORAGE_LAST_ORDER_NUMBER = 'lastOrderNumber';
@@ -632,7 +632,7 @@ function removeOrderFromHistory(orderNumber, cardElement) {
     }
 
     // Sync delete to backend
-    fetch(`https://food-order-j6xw.onrender.com/orders/${orderNumber}`, {
+    fetch(`${API_BASE_URL}/orders/${orderNumber}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'

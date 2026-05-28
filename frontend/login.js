@@ -1,5 +1,5 @@
-const API_BASE_URL = "http://127.0.0.1:3000";
-const CONNECTION_ERROR_TEXT = "Connection error. Please make sure the backend is running on http://127.0.0.1:3000.";
+const API_BASE_URL = "https://food-order-j6xw.onrender.com";
+const CONNECTION_ERROR_TEXT = "Connection error. Please make sure the backend is available at https://food-order-j6xw.onrender.com.";
 
 function handleLogin(event) {
     event.preventDefault();
