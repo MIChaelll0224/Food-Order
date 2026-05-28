@@ -479,10 +479,12 @@ input[type='number']::-webkit-outer-spin-button {
     }
 
     /* Make buttons full-width on small screens for easier tapping */
-    .button {
+    .button,
+    .pba-modal-button {
         width: 100%;
         padding: 12px 14px;
         border-radius: 14px;
+        touch-action: manipulation;
     }
 
     .menu-item {
@@ -512,6 +514,29 @@ input[type='number']::-webkit-outer-spin-button {
         flex: 1;
         padding: 10px 8px;
         font-size: 0.8rem;
+    }
+
+    .receipt-card,
+    .checkout-body,
+    .receipt-items,
+    .receipt-totals {
+        width: 100%;
+    }
+
+    .receipt-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .receipt-item {
+        grid-template-columns: 1fr;
+    }
+
+    .receipt-totals div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
 }
 

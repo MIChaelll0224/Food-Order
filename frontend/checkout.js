@@ -137,12 +137,20 @@ async function confirmOrder() {
         console.error('Failed to save order:', e);
     }
 
+    if (confirmOrderButton) {
+        confirmOrderButton.disabled = true;
+        confirmOrderButton.textContent = 'Processing...';
+        confirmOrderButton.setAttribute('aria-busy', 'true');
+    }
+
     // Send to Google Sheets
     try {
         console.log('Sending order confirmation to Google Sheets...', currentOrder);
         
         const response = await fetch(`${API_BASE_URL}/order`, {
             method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -158,36 +166,43 @@ async function confirmOrder() {
             })
         });
 
-        const data = await response.json();
-        
-        if (data.success) {
-            console.log('Order successfully updated in Google Sheets');
-            saveOrderHistory(currentOrder);
-            try {
-                localStorage.removeItem(STORAGE_CURRENT_ORDER);
-            } catch (e) {
-                console.warn('Could not clear current order from storage:', e);
-            }
-            await showModal({
-                title: 'Order Confirmed',
-                message: `✓ Order #${currentOrder.orderNumber} confirmed and saved!\n\nCustomer: ${currentOrder.customerName}\nTotal: ₱${currentOrder.totalAmount.toFixed(2)}`,
-                type: 'success',
-                confirmText: 'OK'
-            });
-            receiptStatus.textContent = 'COMPLETED';
+        let data = null;
+        try {
+            data = await response.json();
+        } catch (jsonError) {
+            console.warn('Failed to parse backend response as JSON:', jsonError);
+        }
+
+        if (!response.ok || !data || !data.success) {
+            const errorMessage = data && data.message ? data.message : `Server error (${response.status})`;
+            throw new Error(errorMessage);
+        }
+
+        console.log('Order successfully updated in Google Sheets');
+        saveOrderHistory(currentOrder);
+        try {
+            localStorage.removeItem(STORAGE_CURRENT_ORDER);
+        } catch (e) {
+            console.warn('Could not clear current order from storage:', e);
+        }
+        await showModal({
+            title: 'Order Confirmed',
+            message: `✓ Order #${currentOrder.orderNumber} confirmed and saved!\n\nCustomer: ${currentOrder.customerName}\nTotal: ₱${currentOrder.totalAmount.toFixed(2)}`,
+            type: 'success',
+            confirmText: 'OK'
+        });
+        receiptStatus.textContent = 'COMPLETED';
+        if (confirmOrderButton) {
             confirmOrderButton.disabled = true;
             confirmOrderButton.textContent = 'Order Confirmed ✓';
-        } else {
-            console.warn('Google Sheets update failed:', data);
-            await showModal({
-                title: 'Google Sheets error',
-                message: 'Order saved locally but could not update Google Sheets. Check your backend connection.',
-                type: 'error',
-                confirmText: 'OK'
-            });
         }
     } catch (error) {
         console.error('Failed to update order in Google Sheets:', error);
+        if (confirmOrderButton) {
+            confirmOrderButton.disabled = false;
+            confirmOrderButton.removeAttribute('aria-busy');
+            confirmOrderButton.textContent = 'Confirm Order';
+        }
         await showModal({
             title: 'Connection error',
             message: 'Order saved locally but could not connect to Google Sheets.\n\nError: ' + error.message,
